@@ -22,7 +22,7 @@ def upload_files(folderPath, objectPrefix, minioClient, bucketName):
 def yolo_train(context, params: dict):
     model = YOLO(params["base_model"])
     results = model.train(
-        data=params["data"], epochs=params["epochs"], imgsz=params["imgsz"]
+        data=params["data"], epochs=params["epochs"], imgsz=params["imgsz"], workers=params["workers"], device=params["device"]
     )
 
     minioClient = minio.Minio(

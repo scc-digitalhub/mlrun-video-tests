@@ -4,7 +4,7 @@ from ultralytics import YOLO
 import minio
 import cv2
 import os
-
+import torch
 
 class TrackingModel(mlrun.serving.V2ModelServer):
     def load(self):
@@ -14,7 +14,7 @@ class TrackingModel(mlrun.serving.V2ModelServer):
             access_key=os.environ.get("MLRUN_K8S_SECRET__MINIO_AK"),
             secret_key=os.environ.get("MLRUN_K8S_SECRET__MINIO_SK"),
         )
-        self.model = self.load_model("models", "yolov8x.pt")
+        self.model = self.load_model("models", "best/best.pt")
 
     def load_model(self, bucket, model_path):
         self.minio_client.fget_object(bucket, model_path, "yolov8.pt")
@@ -39,6 +39,9 @@ class TrackingModel(mlrun.serving.V2ModelServer):
 
     def predict(self, body: dict) -> List:
         """Generate model predictions from sample."""
+        print("THIS DEVICE IS")
+        device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+        print(device)
         bucket = body["bucket"]
         for path in body["inputs"]:
             image = self.dowload_file(bucket, path)
